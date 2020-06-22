@@ -79,3 +79,20 @@ export const ACTUALIZAR_PEDIDO = gql`
 		actualizarPedido(formulario: $formulario, estadoAnterior: $estadoAnterior)
 	}
 `;
+
+// USUARIOS
+
+export const NUEVO_USUARIO = gql`
+	mutation crearUsuario($usuario: String!, $password: String!) {
+		crearUsuario(usuario: $usuario, password: $password)
+	}
+`;
+
+// El autenticarUsuario interno se refiere al que está en resolvers.js (en server)
+export const AUTENTICAR_USUARIO = gql`
+	mutation autenticarUsuario($usuario: String!, $password: String!) {
+		autenticarUsuario(usuario: $usuario, password: $password) {
+			token
+		}
+	}
+`;

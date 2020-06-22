@@ -1,5 +1,7 @@
 import gql from "graphql-tag";
 
+// Clientes
+
 export const CLIENTES_QUERY = gql`
 	query getClientes($limite: Int, $offset: Int) {
 		getClientes(limite: $limite, offset: $offset) {
@@ -29,6 +31,8 @@ export const CLIENTE_QUERY = gql`
 	}
 `;
 
+// Productos
+
 export const PRODUCTOS_QUERY = gql`
 	query getProductos($limite: Int, $offset: Int, $hideSoldOut: Boolean) {
 		getProductos(limite: $limite, offset: $offset, hideSoldOut: $hideSoldOut) {
@@ -54,7 +58,7 @@ export const PRODUCTO_QUERY = gql`
 `;
 
 export const PEDIDOS_QUERY = gql`
-	query getPedidos($cliente: String) {
+	query getPedidos($cliente: ID) {
 		getPedidos(cliente: $cliente) {
 			id
 			total
@@ -65,6 +69,21 @@ export const PEDIDOS_QUERY = gql`
 				cantidad
 			}
 			estado
+		}
+	}
+`;
+
+// Gráficos
+
+export const TOP_CLIENTES = gql`
+	query topClientes {
+		topClientes {
+			total
+			cliente {
+				nombre
+				apellido
+				edad
+			}
 		}
 	}
 `;

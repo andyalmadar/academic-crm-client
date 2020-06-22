@@ -18,6 +18,9 @@ import PedidosCliente from './componentes/Pedidos/PedidosCliente';
 import NuevoPedido from './componentes/Pedidos/NuevoPedido';
 
 import Panel from './componentes/Panel/Panel';
+
+import Registro from './componentes/Auth/Registro';
+import Login from './componentes/Auth/Login';
 // IMPORTACIÓN DE MIS COMPONENTES (FIN)
 
 const client = new ApolloClient({
@@ -49,6 +52,8 @@ class App extends Component {
                                 <Route exact path="/pedido/nuevo/:id" component={NuevoPedido} />
                                 <Route exact path="/pedidos/:id" component={PedidosCliente} />
                                 <Route exact path="/panel" component={Panel} />
+                                <Route exact path="/registro" component={Registro} />
+                                <Route exact path="/login" component={Login} />
                             </Switch>
                         </div>
                     </>
