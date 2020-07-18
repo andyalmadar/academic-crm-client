@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { Mutation } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 
 import { NUEVO_CLIENTE } from '../../mutations';
-import { Mutation } from 'react-apollo';
 
 class NuevoCliente extends Component {
     state = {
@@ -39,6 +40,7 @@ class NuevoCliente extends Component {
     }
 
     render() {
+        const idVendedor = this.props.session.getUsuario.id;
         const {error} = this.state;
         let respuesta = (error) ? <p className="alert alert-danger p-3 text-center">Todos los campos son obligatorios</p> : '';
 
@@ -55,126 +57,129 @@ class NuevoCliente extends Component {
                             this.props.history.push('/clientes');
                         }}
                     >
-                        { crearCliente => (
-                            <form className="col-md-8 m-3" onSubmit={(e) => {
-                                e.preventDefault();
+                        {
+                            crearCliente => (
+                                <form className="col-md-8 m-3" onSubmit={(e) => {
+                                    e.preventDefault();
 
-                                const {nombre, apellido, empresa, edad, tipo} = this.state.cliente; // acá busco en el state.cliente los elementos "nombre", "apellido", "empresa", "edad" y "tipo"
+                                    const {nombre, apellido, empresa, edad, tipo} = this.state.cliente;
 
-                                const {emails} = this.state // acá busco en el state el elemento "emails"
+                                    const {emails} = this.state;
 
-                                if (nombre === '' || apellido === '' || empresa === '' || edad === '' || tipo === '') {
+                                    if (nombre === '' || apellido === '' || empresa === '' || edad === '' || tipo === '') {
+                                        this.setState({
+                                            error: true
+                                        });
+
+                                        return;
+                                    }
+
                                     this.setState({
-                                        error: true
+                                        error: false
                                     });
 
-                                    return;
-                                }
+                                    const formulario = {
+                                        nombre: nombre,
+                                        apellido: apellido,
+                                        empresa: empresa,
+                                        edad: Number(edad),
+                                        tipo: tipo,
+                                        emails: emails,
+                                        vendedor: idVendedor
+                                    }
 
-                                this.setState({
-                                    error: false
-                                });
-
-                                const formulario = {
-                                    nombre: nombre,
-                                    apellido: apellido,
-                                    empresa: empresa,
-                                    edad: Number(edad),
-                                    tipo: tipo,
-                                    emails: emails
-                                }
-
-                                crearCliente({
-                                    variables: {formulario}
-                                })
-                            }}>
-                                <div className="form-row">
-                                    <div className="form-group col-md-6">
-                                        <label>Nombre</label>
-                                        <input type="text" className="form-control" placeholder="Nombre" onChange={(e) => {
-                                            this.setState({
-                                                cliente: {
-                                                    ...this.state.cliente,
-                                                    nombre: e.target.value
-                                                }
-                                            })
-                                        }} />
+                                    crearCliente({
+                                        variables: {formulario}
+                                    })
+                                }}>
+                                    <div className="form-row">
+                                        <div className="form-group col-md-6">
+                                            <label>Nombre</label>
+                                            <input type="text" className="form-control" placeholder="Nombre" onChange={(e) => {
+                                                this.setState({
+                                                    cliente: {
+                                                        ...this.state.cliente,
+                                                        nombre: e.target.value
+                                                    }
+                                                })
+                                            }} />
+                                        </div>
+                                        <div className="form-group col-md-6">
+                                            <label>Apellido</label>
+                                            <input type="text" className="form-control" placeholder="Apellido" onChange={(e) => {
+                                                this.setState({
+                                                    cliente: {
+                                                        ...this.state.cliente,
+                                                        apellido: e.target.value
+                                                    }
+                                                })
+                                            }}/>
+                                        </div>
                                     </div>
-                                    <div className="form-group col-md-6">
-                                        <label>Apellido</label>
-                                        <input type="text" className="form-control" placeholder="Apellido" onChange={(e) => {
-                                            this.setState({
-                                                cliente: {
-                                                    ...this.state.cliente,
-                                                    apellido: e.target.value
-                                                }
-                                            })
-                                        }}/>
-                                    </div>
-                                </div>
-                                <div className="form-row">
-                                    <div className="form-group col-md-12">
-                                        <label>Empresa</label>
-                                        <input type="text" className="form-control" placeholder="Empresa" onChange={(e) => {
-                                            this.setState({
-                                                cliente: {
-                                                    ...this.state.cliente,
-                                                    empresa: e.target.value
-                                                }
-                                            })
-                                        }}/>
-                                    </div>
-                                    {this.state.emails.map((input, index) => (
-                                        <div key={index} className="form-group col-md-12">
-                                            <label>Email {index + 1}</label>
-                                            <div className="input-group">
-                                                <input type="text" className="form-control" placeholder={`Email ${index + 1}`} value={input.email} onChange={this.leerCampo(index)}/>
-                                                <div className="input-group-append">
-                                                    <button type="button" className="btn btn-danger" onClick={this.eliminarCampo(index)}>
-                                                        &times; Eliminar
-                                                    </button>
+                                    <div className="form-row">
+                                        <div className="form-group col-md-12">
+                                            <label>Empresa</label>
+                                            <input type="text" className="form-control" placeholder="Empresa" onChange={(e) => {
+                                                this.setState({
+                                                    cliente: {
+                                                        ...this.state.cliente,
+                                                        empresa: e.target.value
+                                                    }
+                                                })
+                                            }}/>
+                                        </div>
+                                        {this.state.emails.map((input, index) => (
+                                            <div key={index} className="form-group col-md-12">
+                                                <label>Email {index + 1}</label>
+                                                <div className="input-group">
+                                                    <input type="text" className="form-control" placeholder={`Email ${index + 1}`} value={input.email} onChange={this.leerCampo(index)}/>
+                                                    <div className="input-group-append">
+                                                        <button type="button" className="btn btn-danger" onClick={this.eliminarCampo(index)}>
+                                                            &times; Eliminar
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        ))}
+                                        <div className="form-group d-flex justify-content-center col-md-12">
+                                            <button type="button" className="btn btn-warning" onClick={this.nuevoCampo}>
+                                                Agregar email
+                                            </button>
                                         </div>
-                                    ))}
-                                    <div className="form-group d-flex justify-content-center col-md-12">
-                                        <button type="button" className="btn btn-warning" onClick={this.nuevoCampo}>
-                                            Agregar email
-                                        </button>
                                     </div>
-                                </div>
-                                <div className="form-row">
-                                    <div className="form-group col-md-6">
-                                        <label>Edad</label>
-                                        <input type="text" className="form-control" placeholder="Edad" onChange={(e) => {
-                                            this.setState({
-                                                cliente: {
-                                                    ...this.state.cliente,
-                                                    edad: e.target.value
-                                                }
-                                            })
-                                        }}/>
+                                    <div className="form-row">
+                                        <div className="form-group col-md-6">
+                                            <label>Edad</label>
+                                            <input type="text" className="form-control" placeholder="Edad" onChange={(e) => {
+                                                this.setState({
+                                                    cliente: {
+                                                        ...this.state.cliente,
+                                                        edad: e.target.value
+                                                    }
+                                                })
+                                            }}/>
+                                        </div>
+                                        <div className="form-group col-md-6">
+                                            <label>Tipo Cliente</label>
+                                            <select className="form-control" onChange={(e) => {
+                                                this.setState({
+                                                    cliente: {
+                                                        ...this.state.cliente,
+                                                        tipo: e.target.value
+                                                    }
+                                                })
+                                            }}>
+                                                <option value="">Elegir...</option>
+                                                <option value="BASICO">BASICO</option>
+                                                <option value="PREMIUM">PREMIUM</option>
+                                                <option value="VVIP">VVIP</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div className="form-group col-md-6">
-                                        <label>Tipo Cliente</label>
-                                        <select className="form-control" onChange={(e) => {
-                                            this.setState({
-                                                cliente: {
-                                                    ...this.state.cliente,
-                                                    tipo: e.target.value
-                                                }
-                                            })
-                                        }}>
-                                            <option value="">Elegir...</option>
-                                            <option value="BASICO">BASICO</option>
-                                            <option value="PREMIUM">PREMIUM</option>
-                                            <option value="VVIP">VVIP</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button type="submit" className="btn btn-success float-right">Guardar</button>
-                            </form>
-                        ) }
+                                    <button type="submit" className="btn btn-success float-right">Guardar</button>
+                                </form>
+                            )
+                        }
                     </Mutation>
                 </div>
             </>
@@ -182,4 +187,4 @@ class NuevoCliente extends Component {
     }
 }
 
-export default NuevoCliente;
+export default withRouter(NuevoCliente);

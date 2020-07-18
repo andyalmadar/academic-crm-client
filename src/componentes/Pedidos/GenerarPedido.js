@@ -16,28 +16,31 @@ const GenerarPedido = (props) => {
             mutation={NUEVO_PEDIDO}
             onCompleted={() => props.history.push('/clientes')}
         >
-            {crearPedido => (
-                <button 
-                    type="button"
-                    className="btn btn-warning mt-4"
-                    disabled={validarPedido(props)}
-                    onClick={e => {
-                        const productosInput = props.productos.map(({nombre, precio, stock, ...objeto}) => objeto);
+            {
+                crearPedido => (
+                    <button 
+                        type="button"
+                        className="btn btn-warning mt-4"
+                        disabled={validarPedido(props)}
+                        onClick={e => {
+                            const productosInput = props.productos.map(({nombre, precio, stock, ...objeto}) => objeto);
 
-                        const formulario = {
-                            pedido: productosInput,
-                            total: props.total,
-                            cliente: props.idCliente
-                        }
+                            const formulario = {
+                                pedido: productosInput,
+                                total: props.total,
+                                cliente: props.idCliente,
+                                vendedor: props.idVendedor
+                            }
 
-                        crearPedido({
-                            variables: {formulario}
-                        })
-                    }}
-                >
-                    Crear pedido
-                </button>
-            )}
+                            crearPedido({
+                                variables: {formulario}
+                            })
+                        }}
+                    >
+                        Crear pedido
+                    </button>
+                )
+            }
         </Mutation>
     )
 }

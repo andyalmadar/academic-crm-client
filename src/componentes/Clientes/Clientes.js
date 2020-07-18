@@ -22,7 +22,6 @@ class Clientes extends Component {
         }
     }
 
-    // método que se pasa como prop al componente Paginador
     paginaAnterior = () => {
         this.setState({
             paginador: {
@@ -32,7 +31,6 @@ class Clientes extends Component {
         });
     }
 
-    // método que se pasa como prop al componente Paginador
     paginaSiguiente = () => {
         this.setState({
             paginador: {
@@ -43,98 +41,113 @@ class Clientes extends Component {
     }
 
     render() {
-        // Este destructuring va dos niveles abajo y declara dos constantes QUE SON mostrar Y mensaje. NO DECLARA LA CONSTANTE alerta.
-        const {alerta: {mostrar, mensaje}} = this.state;
-
+        const {alerta: { mostrar, mensaje }} = this.state;
         const alerta = (mostrar) ? <Exito mensaje={mensaje} /> : "";
-        
+
+        const { rol } = this.props.session.getUsuario;
+        const usuarioId = rol === "VENDEDOR" ? this.props.session.getUsuario.id : '';
+
         return (
-            <Query query={CLIENTES_QUERY} pollInterval={1000} variables={{limite: this.limite, offset: this.state.paginador.offset}}>
-                {({loading, error, data, startPolling, stopPolling}) => {
-                    if (loading) {
-                        return `Cargando...`;
-                    }
-                    if (error) {
-                        return `Error: ${error.message}`;
-                    }
+            <Query
+                query={CLIENTES_QUERY}
+                pollInterval={1000}
+                variables={{
+                    limite: this.limite,
+                    offset: this.state.paginador.offset,
+                    vendedor: usuarioId
+                }}
+            >
+                {
+                    ({loading, error, data, startPolling, stopPolling}) => {
+                        if (loading) {
+                            return `Cargando...`;
+                        }
+                        if (error) {
+                            return `Error: ${error.message}`;
+                        }
 
-                    return (
-                        <>
-                            <h2 className="text-center">Lista de clientes</h2>
+                        return (
+                            <>
+                                <h2 className="text-center">Lista de clientes</h2>
 
-                            {alerta}
+                                {alerta}
 
-                            <ul className="list-group mt-4">
-                                {data.getClientes.map(value => {
-                                    const {id, nombre, apellido, empresa} = value;
+                                <ul className="list-group mt-4">
+                                    {
+                                        data.getClientes.map(value => {
+                                            const {id, nombre, apellido, empresa} = value;
 
-                                    return (
-                                        <li key={id} className="list-group-item">
-                                            <div className="row justify-content-between align-items-center">
-                                                <div className="col-md-8 d-flex justify-content-between align-items-center">
-                                                    {nombre} {apellido} - {empresa}
-                                                </div>
-                                                <div className="col-md-4 d-flex justify-content-end">
-                                                    <Link to={`/pedido/nuevo/${id}`} className="btn btn-warning d-block d-md-inline-block mr-2">
-                                                        &#43; Nuevo pedido
-                                                    </Link>
-                                                    <Link to={`/pedidos/${id}`} className="btn btn-primary d-block d-md-inline-block mr-2">
-                                                        Ver pedidos
-                                                    </Link>
-                                                    <Mutation 
-                                                        mutation={ELIMINAR_CLIENTE}
-                                                        onCompleted={(data) => {
-                                                            this.setState({
-                                                                alerta: {
-                                                                    mostrar: true,
-                                                                    mensaje: data.eliminarCliente
-                                                                }
-                                                            }, () => {
-                                                                setTimeout(() => {
+                                            return (
+                                                <li key={id} className="list-group-item">
+                                                    <div className="row justify-content-between align-items-center">
+                                                        <div className="col-md-8 d-flex justify-content-between align-items-center">
+                                                            {nombre} {apellido} - {empresa}
+                                                        </div>
+                                                        <div className="col-md-4 d-flex justify-content-end">
+                                                            <Link to={`/pedido/nuevo/${id}`} className="btn btn-warning d-block d-md-inline-block mr-2">
+                                                                &#43; Nuevo pedido
+                                                            </Link>
+                                                            <Link to={`/pedidos/${id}`} className="btn btn-primary d-block d-md-inline-block mr-2">
+                                                                Ver pedidos
+                                                            </Link>
+                                                            <Mutation 
+                                                                mutation={ELIMINAR_CLIENTE}
+                                                                onCompleted={(data) => {
                                                                     this.setState({
                                                                         alerta: {
-                                                                            mostrar: false,
-                                                                            mensaje: ""
+                                                                            mostrar: true,
+                                                                            mensaje: data.eliminarCliente
                                                                         }
+                                                                    }, () => {
+                                                                        setTimeout(() => {
+                                                                            this.setState({
+                                                                                alerta: {
+                                                                                    mostrar: false,
+                                                                                    mensaje: ""
+                                                                                }
+                                                                            });
+                                                                        }, 3000);
                                                                     });
-                                                                }, 3000);
-                                                            });
-                                                        }}
-                                                    >
-                                                        {eliminarCliente => (
-                                                            <button type="button" className="btn btn-danger d-block d-md-inline-block mr-2" onClick={() => {
-                                                                if (window.confirm("¿Estás seguro/a?")) {
-                                                                    eliminarCliente({
-                                                                        variables: {
-                                                                            "id": id
-                                                                        }
-                                                                    })
+                                                                }}
+                                                            >
+                                                                {
+                                                                    eliminarCliente => (
+                                                                        <button type="button" className="btn btn-danger d-block d-md-inline-block mr-2" onClick={() => {
+                                                                            if (window.confirm("¿Estás seguro/a?")) {
+                                                                                eliminarCliente({
+                                                                                    variables: {
+                                                                                        "id": id
+                                                                                    }
+                                                                                })
+                                                                            }
+                                                                        }}>
+                                                                            &times; Eliminar
+                                                                        </button>
+                                                                    )
                                                                 }
-                                                            }}>
-                                                                &times; Eliminar
-                                                            </button>
-                                                        )}
-                                                    </Mutation>
-                                                    <Link to={`/cliente/editar/${id}`} className="btn btn-success d-block d-md-inline-block">
-                                                        Editar cliente
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
+                                                            </Mutation>
+                                                            <Link to={`/cliente/editar/${id}`} className="btn btn-success d-block d-md-inline-block">
+                                                                Editar cliente
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            );
+                                        })
+                                    }
+                                </ul>
 
-                            <Paginador
-                                pagina={this.state.paginador.pagina}
-                                total={data.totalClientes}
-                                limite={this.limite}
-                                paginaAnterior={this.paginaAnterior}
-                                paginaSiguiente={this.paginaSiguiente}
-                            />
-                        </>
-                    );
-                }}
+                                <Paginador
+                                    pagina={this.state.paginador.pagina}
+                                    total={data.totalClientes}
+                                    limite={this.limite}
+                                    paginaAnterior={this.paginaAnterior}
+                                    paginaSiguiente={this.paginaSiguiente}
+                                />
+                            </>
+                        );
+                    }
+                }
             </Query>
         );
     }

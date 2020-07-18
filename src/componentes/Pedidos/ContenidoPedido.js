@@ -100,6 +100,7 @@ class ContenidoPedido extends Component {
                     productos={this.state.productos}
                     total={this.state.total}
                     idCliente={this.props.id}
+                    idVendedor={this.props.idVendedor}
                 />
             </>
         );
